@@ -1,73 +1,74 @@
 # 또롱이 뉴스레터 프로젝트
 
-## 프로젝트 개요
-매일 오전 7시 AI/경제 뉴스를 자동 수집 → Claude API로 번역/요약 → 구독자 전체에게 이메일 발송하는 자동화 시스템.
+## 개요
+매일 오전 7시(KST) AI/경제 뉴스 자동 수집 → Claude API 요약 → 구독자 전체 이메일 발송
+월~금만 발송, 주말 없음.
 
-## 저장소 정보
-- GitHub: `https://github.com/sunyeong-park/ai-newsletter`
-- 브랜치: `main`
-- 실행 환경: GitHub Actions (Ubuntu)
+## 저장소
+- GitHub: https://github.com/sunyeong-park/ai-newsletter
+- 브랜치: main
+- 실행: GitHub Actions (Ubuntu)
 
 ## 파일 구조
 ```
 ai-newsletter/
-├── newsletter.py              # 핵심 코드 (뉴스수집 + Claude 요약 + 발송)
-├── subscribers.txt            # 구독자 이메일 목록 (한 줄에 하나)
-├── requirements.txt           # feedparser, anthropic
+├── newsletter.py        # 핵심 코드 (v2 완성본)
+├── subscribers.txt      # 구독자 이메일 목록 (한 줄에 하나)
+├── requirements.txt     # feedparser, anthropic
+├── CLAUDE.md            # 이 파일
 └── .github/workflows/
-    └── daily.yml              # 매일 오전 7시 KST 자동 실행
+    └── daily.yml        # 매일 오전 7시 KST 자동 실행
 ```
 
 ## 환경변수 (GitHub Secrets)
-```
-ANTHROPIC_API_KEY     # Claude API 키 (sk-ant-...)
-GMAIL_ADDRESS         # 발송용 Gmail 주소
-GMAIL_APP_PASSWORD    # Gmail 앱 비밀번호 (16자리)
-RECIPIENT_EMAIL       # 수신 fallback 이메일 (subscribers.txt 없을 때)
-```
+- ANTHROPIC_API_KEY   : Claude API 키 (sk-ant-...)
+- GMAIL_ADDRESS       : 발송용 Gmail 주소
+- GMAIL_APP_PASSWORD  : Gmail 앱 비밀번호 (16자리)
+- RECIPIENT_EMAIL     : fallback 수신 이메일 (subscribers.txt 없을 때)
 
-## 뉴스 소스
-- 구글뉴스 AI (한국어 RSS)
-- 구글뉴스 경제 (한국어 RSS)
-- TechCrunch AI (영어 RSS) → Claude가 한국어로 번역
-- Wired AI (영어 RSS) → Claude가 한국어로 번역
+## 뉴스 소스 (RSS)
+- The Verge AI, TechCrunch AI, VentureBeat AI  (영어 → 번역)
+- Reuters Tech, 연합뉴스 IT/경제               (신뢰 매체)
+- TechCrunch Startups                          (스타트업/투자)
+필터: 전일 기사만 / 중복 제거 (제목 앞 20자 기준)
 
-## 뉴스레터 섹션 구성
-1. Editor's Note — 오늘 뉴스 전체 흐름 요약
-2. 순모닝 브리핑 — 주요 뉴스 4~5개 불릿
-3. Deep Dive — 심층 분석
-4. Killer Chart — 데이터 막대 그래프 (Chart.js)
-5. 오늘의 핵심 뉴스 3 — TOP 3
-6. AI & 기술 섹션
-7. 경제 & 금융 섹션
-8. 이번 주 주요 일정
+## 섹션 구성
+1. Today's One-liner   — 오늘 뉴스 한 문장
+2. ☀ 또모닝 브리핑     — 전일 핵심 4~5개 불릿
+3. 딥다이브            — 요일별 자동 전환
+   - 월/화: 비즈니스 인사이트: 사례분석
+   - 수/목: 비즈니스 인사이트: 전략분석
+   - 금:   비즈니스 인사이트: 리더들의 SNS 말말말
+4. 📊 빅테크 & 주요 지수
+5. 🚀 AI 스타트업 레이더
+6. 🛠 오늘의 AI 툴
+7. 📅 이번 주 주요 일정
+8. 구독 신청 CTA
 
-## 디자인 스펙 (현재)
-- 배경: `#111` (헤더), `#FAFAF8` (본문)
-- 포인트 색상: 골드 `#D4A847`
-- 본문 폰트: Noto Sans KR
-- 타이틀 폰트: Noto Serif KR
-- 본문 글자 크기: 13.5px, 행간 1.75
-- 최대 너비: 620px
+## 확정 디자인 스펙
+- 폰트: Noto Sans KR 고딕 전용 (명조 없음)
+- 헤더: #1A1040 (딥퍼플), padding 28px 40px 45px
+- 날짜: Daily Briefing 같은 줄 오른쪽, #C4BAE8 (연보라)
+- One-liner: #E8682A (오렌지 배경), 흰색 텍스트
+- 본문 배경: #F5F3EC (아이보리)
+- 딥다이브 배경: #F8F6FF (연보라)
+- 포인트 컬러: 보라 #5B3FA0 / 파랑 #1A5FA0 / 오렌지 #E8682A
+- 섹션 padding-top: 43px
+- 섹션 구분: 8px solid #E0DDD4
+- eyebrow 태그: 우측 상단 절대위치, 테두리 박스, 자간 없음
+- 딥다이브 인트로: 보라 큰따옴표 + 들여쓰기
 
 ## Claude API 설정
-- 모델: `claude-sonnet-4-20250514`
-- max_tokens: `8000`
-- 응답 형식: JSON only (마크다운 코드블록 없이)
+- 모델: claude-sonnet-4-20250514
+- max_tokens: 8000
+- 응답: JSON only
 
 ## 구독자 관리
-- `subscribers.txt` 파일에 이메일 한 줄씩 입력
-- `#` 으로 시작하는 줄은 주석 처리
-- GitHub에서 직접 편집 가능
+- subscribers.txt에 이메일 한 줄씩
+- # 주석 처리 가능
+- GitHub에서 직접 편집
 
-## 남은 작업 (TODO)
-- [ ] 디자인 커스터마이즈
-  - 폰트 종류 변경
-  - 글자 크기 / 행간 조정
-  - 섹션 타이틀 텍스트 변경
-  - 포인트 색상 변경 (현재: 골드 #D4A847)
-
-## 비용
-- GitHub Actions: 무료
-- Claude API: 월 $3~6 예상 (크레딧 잔액 $5.00)
-- Gmail SMTP: 무료
+## TODO (다음 작업)
+- [ ] daily.yml 주말 제외 cron 설정 확인
+- [ ] GitHub에 최신 newsletter.py 업로드
+- [ ] 테스트 실행 후 메일 확인
