@@ -442,8 +442,8 @@ def build_html(data: dict) -> str:
 <title>또롱이 뉴스레터 — {TODAY}</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
 </head>
-<body bgcolor="#EDEBE4" style="margin:0;padding:0;{_F}">
-<table width="100%" bgcolor="#EDEBE4" cellpadding="0" cellspacing="0" border="0">
+<body bgcolor="#ffffff" style="margin:0;padding:0;{_F}">
+<table width="100%" bgcolor="#ffffff" cellpadding="0" cellspacing="0" border="0">
 <tr><td align="center" style="padding:20px 0;">
 
 <table width="620" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #D8D5CB;">
@@ -516,11 +516,17 @@ def build_html(data: dict) -> str:
 <tr><td bgcolor="#1A1040" style="padding:28px 40px;text-align:center;border-bottom:1px solid #0E0830;">
   <p style="margin:0 0 6px;{_F}font-size:16px;font-weight:700;color:#F0EDE4;">👓 또롱이 뉴스레터 구독하기</p>
   <p style="margin:0 0 18px;{_F}font-size:12.5px;color:#8A7FAA;line-height:1.7;font-weight:300;">매일 오전 7시, AI·기술·경제 핵심 뉴스를<br>깔끔하게 정리해서 보내드립니다.</p>
-  <table cellpadding="0" cellspacing="0" align="center">
+  <table width="100%" cellpadding="0" cellspacing="0">
     <tr>
-      <td bgcolor="#E8682A" style="padding:12px 32px;">
-        <a href="mailto:{GMAIL_ADDRESS}?subject=또롱이 뉴스레터 구독 신청&body=안녕하세요! 구독 신청합니다."
-           style="{_F}font-size:13px;font-weight:700;color:#ffffff;text-decoration:none;">구독 신청하기 →</a>
+      <td align="center">
+        <table cellpadding="0" cellspacing="0">
+          <tr>
+            <td bgcolor="#E8682A" style="padding:12px 32px;">
+              <a href="mailto:{GMAIL_ADDRESS}?subject=또롱이 뉴스레터 구독 신청&body=안녕하세요! 구독 신청합니다."
+                 style="{_F}font-size:13px;font-weight:700;color:#ffffff;text-decoration:none;">구독 신청하기 →</a>
+            </td>
+          </tr>
+        </table>
       </td>
     </tr>
   </table>
