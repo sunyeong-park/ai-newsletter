@@ -214,99 +214,56 @@ JSON만 응답 (마크다운 코드블록 없이):
     return json.loads(raw.strip())
 
 # ─────────────────────────────────────────
-# HTML 빌드 (확정 디자인)
+# HTML 빌드 (인라인 스타일 — 이메일 클라이언트 호환)
 # ─────────────────────────────────────────
-CSS = """
-* { margin:0; padding:0; box-sizing:border-box; }
-body { background:#EDEBE4; font-family:'Noto Sans KR',sans-serif; -webkit-font-smoothing:antialiased; }
-.wrap { max-width:620px; margin:0 auto; background:#F5F3EC; border:1px solid #D8D5CB; }
-.header { background:#1A1040; padding:28px 40px 45px; }
-.header-meta { display:flex; align-items:center; justify-content:space-between; font-size:11px; letter-spacing:2px; color:#7B6FAA; text-transform:uppercase; margin-bottom:14px; }
-.header-meta-date { font-size:11px; color:#C4BAE8; font-weight:300; letter-spacing:0.5px; text-transform:none; }
-.header-title { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
-.header-icon { font-size:24px; line-height:1; display:inline-block; }
-.header-name { font-size:26px; font-weight:700; color:#F0EDE4; letter-spacing:-0.5px; }
-.header-sub { font-size:12px; color:#E8682A; font-weight:400; margin-top:2px; }
-.oneliner { background:#E8682A; padding:18px 40px 20px; }
-.oneliner-label { font-size:10px; letter-spacing:2px; color:#FFD4B8; text-transform:uppercase; margin-bottom:6px; }
-.oneliner-text { font-size:14.5px; color:#FFF8F5; line-height:1.75; font-weight:500; }
-.section { padding:43px 40px 32px; border-bottom:1px solid #D0CCC0; background:#F5F3EC; position:relative; }
-.section+.section { border-top:8px solid #E0DDD4; }
-.section:last-of-type { border-bottom:none; }
-.section.dive-bg { background:#F8F6FF; }
-.section-eyebrow { display:inline-block; font-size:10px; letter-spacing:0; text-transform:uppercase; color:#7B6FAA; border:1px solid #B8B0D0; border-radius:3px; padding:2px 8px; position:absolute; top:37px; right:40px; }
-.section-title { font-size:17px; font-weight:700; color:#1A1040; margin-bottom:20px; padding-bottom:14px; border-bottom:1.5px solid #D0CCC0; line-height:1.3; padding-right:110px; }
-.brief-item { display:flex; gap:12px; margin-bottom:18px; }
-.brief-item:last-child { margin-bottom:0; }
-.brief-dot { flex-shrink:0; width:6px; height:6px; border-radius:50%; background:#5B3FA0; margin-top:7px; }
-.brief-body { font-size:13.5px; line-height:1.85; color:#2A2540; }
-.brief-body strong { font-weight:700; color:#1A1040; }
-.hi-purple { color:#5B3FA0; font-weight:500; }
-.hi-blue { color:#1A5FA0; font-weight:500; }
-.dive-label { display:inline-block; font-size:10px; letter-spacing:1.5px; background:#EDE8F8; color:#5B3FA0; padding:3px 10px; border-radius:3px; text-transform:uppercase; margin-bottom:8px; }
-.dive-subject { font-size:18px; font-weight:700; color:#1A1040; line-height:1.35; margin-bottom:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.dive-intro { font-size:13.5px; color:#4A4460; line-height:1.85; margin-bottom:20px; padding-left:20px; position:relative; }
-.dive-intro::before { content:'\201C'; position:absolute; left:0; top:-4px; font-size:28px; color:#5B3FA0; font-weight:700; line-height:1; }
-.dive-bullet { display:flex; gap:12px; margin-bottom:16px; }
-.dive-bullet:last-child { margin-bottom:0; }
-.dive-sq { flex-shrink:0; width:6px; height:6px; background:#5B3FA0; margin-top:8px; border-radius:1px; }
-.dive-text { font-size:13.5px; line-height:1.85; color:#2A2540; }
-.dive-text strong { font-weight:700; color:#1A1040; }
-.market-table { width:100%; border-collapse:collapse; font-size:13px; }
-.market-table th { font-size:10px; letter-spacing:1.5px; color:#9994A8; text-transform:uppercase; font-weight:400; padding:0 0 10px; border-bottom:1px solid #D0CCC0; text-align:left; }
-.market-table th:not(:first-child) { text-align:right; }
-.market-table td { padding:9px 0; border-bottom:1px solid #E8E5DC; color:#2A2540; vertical-align:middle; }
-.market-table tr:last-child td { border-bottom:none; }
-.market-table td:not(:first-child) { text-align:right; }
-.market-name { font-weight:500; color:#1A1040; }
-.market-val { font-weight:400; color:#4A4460; }
-.market-reason { font-size:11.5px; color:#8A8098; display:block; margin-top:2px; }
-.up { color:#1A7A4A; font-weight:500; }
-.down { color:#C0392B; font-weight:500; }
-.startup-item { padding:14px 0; border-bottom:1px solid #E8E5DC; }
-.startup-item:last-child { border-bottom:none; padding-bottom:0; }
-.startup-head { display:flex; align-items:center; gap:8px; margin-bottom:5px; }
-.startup-name { font-size:14px; font-weight:700; color:#1A1040; }
-.startup-amount { display:inline-block; font-size:11px; background:#EDE8F8; color:#5B3FA0; padding:2px 8px; border-radius:3px; }
-.startup-text { font-size:13px; color:#4A4460; line-height:1.8; }
-.tool-card { background:#EDEBFF; border-radius:6px; padding:20px 24px; border-left:3px solid #5B3FA0; }
-.tool-head { display:flex; align-items:baseline; gap:10px; margin-bottom:10px; }
-.tool-name { font-size:16px; font-weight:700; color:#1A1040; }
-.tool-tag { font-size:11px; color:#7B6FAA; font-weight:300; }
-.tool-row { font-size:13.5px; color:#2A2540; line-height:1.85; margin-bottom:8px; }
-.tool-row strong { font-weight:600; color:#5B3FA0; }
-.tool-link { font-size:12px; color:#E8682A; text-decoration:none; font-weight:500; }
-.sched-item { display:flex; gap:16px; padding:9px 0; border-bottom:1px solid #E8E5DC; font-size:13px; align-items:flex-start; }
-.sched-item:last-child { border-bottom:none; padding-bottom:0; }
-.sched-date { flex-shrink:0; width:88px; color:#9994A8; font-weight:500; font-size:12.5px; }
-.sched-label { color:#2A2540; line-height:1.6; }
-.sched-label.key { font-weight:700; color:#1A1040; }
-.sched-star { color:#5B3FA0; margin-right:3px; }
-.subscribe-cta { padding:28px 40px; background:#1A1040; text-align:center; border-bottom:1px solid #0E0830; }
-.subscribe-cta-title { font-size:16px; font-weight:700; color:#F0EDE4; margin-bottom:6px; }
-.subscribe-cta-desc { font-size:12.5px; color:#8A7FAA; margin-bottom:18px; line-height:1.7; font-weight:300; }
-.subscribe-btn { display:inline-block; background:#E8682A; color:#fff; font-size:13px; font-weight:700; padding:12px 32px; border-radius:6px; text-decoration:none; }
-.footer { background:#1A1040; padding:22px 40px; text-align:center; }
-.footer p { font-size:11px; color:#5A5078; line-height:2; }
-.footer a { color:#7B6FAA; text-decoration:none; }
-"""
+_F = "font-family:'Noto Sans KR',sans-serif;"  # 폰트 축약
 
 def build_html(data: dict) -> str:
 
     def hl(text, keyword):
         if not keyword or not text:
             return text
-        return text.replace(keyword, f'<span class="hi-purple">{keyword}</span>', 1)
+        return text.replace(
+            keyword,
+            f'<span style="color:#5B3FA0;font-weight:500;">{keyword}</span>',
+            1,
+        )
+
+    def section_header(title, eyebrow):
+        """섹션 제목 + eyebrow 태그를 table로 나란히 배치"""
+        return (
+            f'<table style="width:100%;border-collapse:collapse;margin-bottom:20px;">'
+            f'<tr>'
+            f'<td style="{_F}font-size:17px;font-weight:700;color:#1A1040;'
+            f'padding-bottom:14px;border-bottom:1.5px solid #D0CCC0;line-height:1.3;">'
+            f'{title}</td>'
+            f'<td style="text-align:right;vertical-align:top;padding-bottom:14px;'
+            f'border-bottom:1.5px solid #D0CCC0;white-space:nowrap;padding-left:12px;">'
+            f'<span style="{_F}display:inline-block;font-size:10px;letter-spacing:0;'
+            f'text-transform:uppercase;color:#7B6FAA;border:1px solid #B8B0D0;'
+            f'border-radius:3px;padding:2px 8px;">{eyebrow}</span>'
+            f'</td>'
+            f'</tr>'
+            f'</table>'
+        )
 
     def render_briefs(items):
         html = ""
-        for b in items:
+        for i, b in enumerate(items):
             text = hl(b.get("text", ""), b.get("highlight"))
+            mb = "0" if i == len(items) - 1 else "18px"
             html += (
-                '<div class="brief-item">'
-                '<div class="brief-dot"></div>'
-                f'<div class="brief-body"><strong>{b["bold"]}</strong> — {text}</div>'
-                '</div>'
+                f'<table style="width:100%;border-collapse:collapse;margin-bottom:{mb};">'
+                f'<tr>'
+                f'<td style="width:6px;vertical-align:top;padding-top:7px;padding-right:12px;">'
+                f'<div style="width:6px;height:6px;border-radius:50%;background:#5B3FA0;"></div>'
+                f'</td>'
+                f'<td style="{_F}font-size:13.5px;line-height:1.85;color:#2A2540;">'
+                f'<strong style="font-weight:700;color:#1A1040;">{b["bold"]}</strong>'
+                f' — {text}'
+                f'</td>'
+                f'</tr>'
+                f'</table>'
             )
         return html
 
@@ -314,54 +271,106 @@ def build_html(data: dict) -> str:
         subject = dive.get("subject", "")
         intro   = dive.get("intro", "")
         bullets = dive.get("bullets", [])
+
         html = (
-            f'<div class="dive-label">{DIVE_EYEBROW}</div>'
-            f'<div class="dive-subject">{subject}</div>'
-            f'<div class="dive-intro">{intro}</div>'
+            f'<div style="{_F}display:inline-block;font-size:10px;letter-spacing:1.5px;'
+            f'background:#EDE8F8;color:#5B3FA0;padding:3px 10px;border-radius:3px;'
+            f'text-transform:uppercase;margin-bottom:8px;">{DIVE_EYEBROW}</div>'
+            f'<div style="{_F}font-size:18px;font-weight:700;color:#1A1040;line-height:1.35;'
+            f'margin-bottom:14px;overflow:hidden;text-overflow:ellipsis;">{subject}</div>'
         )
-        for b in bullets:
+        # ::before 큰따옴표를 실제 td 셀로 구현
+        html += (
+            f'<table style="width:100%;border-collapse:collapse;margin-bottom:20px;">'
+            f'<tr>'
+            f'<td style="{_F}width:20px;vertical-align:top;font-size:28px;color:#5B3FA0;'
+            f'font-weight:700;line-height:1;padding-right:4px;">\u201C</td>'
+            f'<td style="{_F}font-size:13.5px;color:#4A4460;line-height:1.85;">{intro}</td>'
+            f'</tr>'
+            f'</table>'
+        )
+        for i, b in enumerate(bullets):
             body = hl(b.get("body", ""), b.get("highlight"))
+            mb = "0" if i == len(bullets) - 1 else "16px"
             html += (
-                '<div class="dive-bullet">'
-                '<div class="dive-sq"></div>'
-                f'<div class="dive-text"><strong>{b["head"]}</strong> {body}</div>'
-                '</div>'
+                f'<table style="width:100%;border-collapse:collapse;margin-bottom:{mb};">'
+                f'<tr>'
+                f'<td style="width:6px;vertical-align:top;padding-top:8px;padding-right:12px;">'
+                f'<div style="width:6px;height:6px;background:#5B3FA0;border-radius:1px;"></div>'
+                f'</td>'
+                f'<td style="{_F}font-size:13.5px;line-height:1.85;color:#2A2540;">'
+                f'<strong style="font-weight:700;color:#1A1040;">{b["head"]}</strong>'
+                f' {body}'
+                f'</td>'
+                f'</tr>'
+                f'</table>'
             )
         return html
 
     def render_bigtech(items):
         if not items:
-            return '<p style="font-size:13px;color:#8A8780">오늘 주요 지수 데이터가 없습니다.</p>'
-        rows = ""
-        for item in items:
+            return f'<p style="{_F}font-size:13px;color:#8A8780;">오늘 주요 지수 데이터가 없습니다.</p>'
+        thead = (
+            f'<tr>'
+            f'<th style="{_F}font-size:10px;letter-spacing:1.5px;color:#9994A8;'
+            f'text-transform:uppercase;font-weight:400;padding:0 0 10px;'
+            f'border-bottom:1px solid #D0CCC0;text-align:left;">종목/지수</th>'
+            f'<th style="{_F}font-size:10px;letter-spacing:1.5px;color:#9994A8;'
+            f'text-transform:uppercase;font-weight:400;padding:0 0 10px;'
+            f'border-bottom:1px solid #D0CCC0;text-align:right;">현재가</th>'
+            f'<th style="{_F}font-size:10px;letter-spacing:1.5px;color:#9994A8;'
+            f'text-transform:uppercase;font-weight:400;padding:0 0 10px;'
+            f'border-bottom:1px solid #D0CCC0;text-align:right;">등락</th>'
+            f'</tr>'
+        )
+        tbody = ""
+        for i, item in enumerate(items):
             is_up  = item.get("up", True)
             arrow  = "▲" if is_up else "▼"
-            cls    = "up" if is_up else "down"
-            rows += (
+            c_chg  = "#1A7A4A" if is_up else "#C0392B"
+            bd     = "none" if i == len(items) - 1 else "1px solid #E8E5DC"
+            td_base = f"padding:9px 0;border-bottom:{bd};vertical-align:middle;"
+            tbody += (
                 f'<tr>'
-                f'<td><span class="market-name">{item["name"]} <span style="font-size:11px;color:#9994A8">{item.get("ticker","")}</span></span>'
-                f'<span class="market-reason">{item["reason"]}</span></td>'
-                f'<td class="market-val">{item.get("price","—")}</td>'
-                f'<td><span class="{cls}">{arrow} {item["change"]}</span></td>'
+                f'<td style="{_F}{td_base}color:#2A2540;">'
+                f'<span style="font-weight:500;color:#1A1040;">{item["name"]}'
+                f' <span style="font-size:11px;color:#9994A8;">{item.get("ticker","")}</span></span>'
+                f'<span style="{_F}font-size:11.5px;color:#8A8098;display:block;margin-top:2px;">'
+                f'{item["reason"]}</span>'
+                f'</td>'
+                f'<td style="{_F}{td_base}font-weight:400;color:#4A4460;text-align:right;">'
+                f'{item.get("price","—")}</td>'
+                f'<td style="{td_base}text-align:right;">'
+                f'<span style="{_F}color:{c_chg};font-weight:500;">{arrow} {item["change"]}</span>'
+                f'</td>'
                 f'</tr>'
             )
         return (
-            '<table class="market-table"><thead><tr>'
-            '<th>종목/지수</th><th>현재가</th><th>등락</th>'
-            f'</tr></thead><tbody>{rows}</tbody></table>'
+            f'<table style="width:100%;border-collapse:collapse;font-size:13px;">'
+            f'<thead>{thead}</thead><tbody>{tbody}</tbody></table>'
         )
 
     def render_startups(items):
         html = ""
-        for s in items:
+        for i, s in enumerate(items):
+            is_last = i == len(items) - 1
+            bd = "none" if is_last else "1px solid #E8E5DC"
+            pb = "0" if is_last else "14px"
             html += (
-                '<div class="startup-item">'
-                '<div class="startup-head">'
-                f'<span class="startup-name">{s["name"]}</span>'
-                f'<span class="startup-amount">{s.get("amount","")}</span>'
-                '</div>'
-                f'<div class="startup-text">{s["summary"]}</div>'
-                '</div>'
+                f'<div style="padding:14px 0 {pb};border-bottom:{bd};">'
+                f'<table style="width:100%;border-collapse:collapse;margin-bottom:5px;">'
+                f'<tr>'
+                f'<td style="vertical-align:middle;">'
+                f'<span style="{_F}font-size:14px;font-weight:700;color:#1A1040;">{s["name"]}</span>'
+                f'</td>'
+                f'<td style="text-align:right;vertical-align:middle;">'
+                f'<span style="{_F}display:inline-block;font-size:11px;background:#EDE8F8;'
+                f'color:#5B3FA0;padding:2px 8px;border-radius:3px;">{s.get("amount","")}</span>'
+                f'</td>'
+                f'</tr>'
+                f'</table>'
+                f'<div style="{_F}font-size:13px;color:#4A4460;line-height:1.8;">{s["summary"]}</div>'
+                f'</div>'
             )
         return html
 
@@ -369,27 +378,44 @@ def build_html(data: dict) -> str:
         if not tool:
             return ""
         return (
-            '<div class="tool-card">'
-            '<div class="tool-head">'
-            f'<span class="tool-name">{tool["name"]}</span>'
-            f'<span class="tool-tag">{tool.get("tagline","")}</span>'
-            '</div>'
-            f'<div class="tool-row"><strong>무엇인가</strong> {tool.get("what","")}</div>'
-            f'<div class="tool-row"><strong>왜 주목받나</strong> {tool.get("why","")}</div>'
-            f'<a href="{tool.get("link","#")}" class="tool-link">자세히 보기 →</a>'
-            '</div>'
+            f'<div style="background:#EDEBFF;border-radius:6px;padding:20px 24px;'
+            f'border-left:3px solid #5B3FA0;">'
+            f'<div style="margin-bottom:10px;">'
+            f'<span style="{_F}font-size:16px;font-weight:700;color:#1A1040;">{tool["name"]}</span>'
+            f'&nbsp;&nbsp;'
+            f'<span style="{_F}font-size:11px;color:#7B6FAA;font-weight:300;">{tool.get("tagline","")}</span>'
+            f'</div>'
+            f'<div style="{_F}font-size:13.5px;color:#2A2540;line-height:1.85;margin-bottom:8px;">'
+            f'<strong style="font-weight:600;color:#5B3FA0;">무엇인가</strong> {tool.get("what","")}</div>'
+            f'<div style="{_F}font-size:13.5px;color:#2A2540;line-height:1.85;margin-bottom:8px;">'
+            f'<strong style="font-weight:600;color:#5B3FA0;">왜 주목받나</strong> {tool.get("why","")}</div>'
+            f'<a href="{tool.get("link","#")}" style="{_F}font-size:12px;color:#E8682A;'
+            f'text-decoration:none;font-weight:500;">자세히 보기 →</a>'
+            f'</div>'
         )
 
     def render_schedule(items):
         html = ""
-        for item in items:
-            star = '<span class="sched-star">★</span>' if item.get("key") else ""
-            key_cls = " key" if item.get("key") else ""
+        for i, item in enumerate(items):
+            is_last = i == len(items) - 1
+            bd = "none" if is_last else "1px solid #E8E5DC"
+            pb = "0" if is_last else "9px"
+            star = f'<span style="color:#5B3FA0;margin-right:3px;">★</span>' if item.get("key") else ""
+            lbl_style = (
+                f"{_F}color:#1A1040;font-weight:700;line-height:1.6;"
+                if item.get("key")
+                else f"{_F}color:#2A2540;line-height:1.6;"
+            )
             html += (
-                '<div class="sched-item">'
-                f'<div class="sched-date">{item["date"]}</div>'
-                f'<div class="sched-label{key_cls}">{star}{item["label"]}</div>'
-                '</div>'
+                f'<div style="padding:9px 0 {pb};border-bottom:{bd};">'
+                f'<table style="width:100%;border-collapse:collapse;">'
+                f'<tr>'
+                f'<td style="{_F}width:88px;color:#9994A8;font-weight:500;font-size:12.5px;'
+                f'vertical-align:top;">{item["date"]}</td>'
+                f'<td style="{lbl_style}">{star}{item["label"]}</td>'
+                f'</tr>'
+                f'</table>'
+                f'</div>'
             )
         return html
 
@@ -401,6 +427,10 @@ def build_html(data: dict) -> str:
     tool_html    = render_tool(data.get("ai_tool"))
     sched_html   = render_schedule(data.get("schedule", []))
 
+    _S  = f"padding:43px 40px 32px;background:#F5F3EC;border-top:8px solid #E0DDD4;"
+    _S0 = f"padding:43px 40px 32px;background:#F5F3EC;"           # 첫 섹션 (border-top 없음)
+    _SD = f"padding:43px 40px 32px;background:#F8F6FF;border-top:8px solid #E0DDD4;"  # 딥다이브
+
     return f"""<!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -408,73 +438,80 @@ def build_html(data: dict) -> str:
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>또롱이 뉴스레터 — {TODAY}</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-<style>{CSS}</style>
 </head>
-<body>
-<div class="wrap">
+<body style="margin:0;padding:0;background:#EDEBE4;{_F}-webkit-font-smoothing:antialiased;">
+<div style="max-width:620px;margin:0 auto;background:#F5F3EC;border:1px solid #D8D5CB;">
 
-<div class="header">
-  <div class="header-meta">
-    <span>Daily Briefing · AI &amp; Economy</span>
-    <span class="header-meta-date">{TODAY} {DOW_SHORT}</span>
+<!-- Header -->
+<div style="background:#1A1040;padding:28px 40px 45px;">
+  <table style="width:100%;border-collapse:collapse;margin-bottom:14px;">
+    <tr>
+      <td style="{_F}font-size:11px;letter-spacing:2px;color:#7B6FAA;text-transform:uppercase;">Daily Briefing · AI &amp; Economy</td>
+      <td style="{_F}text-align:right;font-size:11px;color:#C4BAE8;font-weight:300;letter-spacing:0.5px;">{TODAY} {DOW_SHORT}</td>
+    </tr>
+  </table>
+  <div style="margin-bottom:6px;">
+    <span style="font-size:24px;line-height:1;display:inline-block;">👓</span>
+    <span style="{_F}font-size:26px;font-weight:700;color:#F0EDE4;letter-spacing:-0.5px;vertical-align:middle;margin-left:10px;">또롱이 뉴스레터</span>
   </div>
-  <div class="header-title">
-    <span class="header-icon">👓</span>
-    <span class="header-name">또롱이 뉴스레터</span>
-  </div>
-  <div class="header-sub">AI · 기술 · 경제 핵심 뉴스</div>
+  <div style="{_F}font-size:12px;color:#E8682A;font-weight:400;margin-top:2px;">AI · 기술 · 경제 핵심 뉴스</div>
 </div>
 
-<div class="oneliner">
-  <div class="oneliner-label">Today's One-liner</div>
-  <div class="oneliner-text">{one_liner}</div>
+<!-- One-liner -->
+<div style="background:#E8682A;padding:18px 40px 20px;">
+  <div style="{_F}font-size:10px;letter-spacing:2px;color:#FFD4B8;text-transform:uppercase;margin-bottom:6px;">Today's One-liner</div>
+  <div style="{_F}font-size:14.5px;color:#FFF8F5;line-height:1.75;font-weight:500;">{one_liner}</div>
 </div>
 
-<div class="section">
-  <div class="section-eyebrow">Morning Brief</div>
-  <div class="section-title">☀ 또모닝 브리핑</div>
+<!-- Morning Briefing -->
+<div style="{_S0}">
+  {section_header("☀ 또모닝 브리핑", "Morning Brief")}
   {briefs_html}
 </div>
 
-<div class="section dive-bg">
-  <div class="section-eyebrow">Deep Dive</div>
-  <div class="section-title">{DIVE_LABEL}</div>
+<!-- Deep Dive -->
+<div style="{_SD}">
+  {section_header(DIVE_LABEL, "Deep Dive")}
   {dive_html}
 </div>
 
-<div class="section">
-  <div class="section-eyebrow">Markets</div>
-  <div class="section-title">📊 빅테크 &amp; 주요 지수</div>
+<!-- BigTech & 주요 지수 -->
+<div style="{_S}">
+  {section_header("📊 빅테크 &amp; 주요 지수", "Markets")}
   {bigtech_html}
 </div>
 
-<div class="section">
-  <div class="section-eyebrow">Startup Radar</div>
-  <div class="section-title">🚀 AI 스타트업 레이더</div>
+<!-- AI 스타트업 -->
+<div style="{_S}">
+  {section_header("🚀 AI 스타트업 레이더", "Startup Radar")}
   {startup_html}
 </div>
 
-<div class="section">
-  <div class="section-eyebrow">AI Tool</div>
-  <div class="section-title">🛠 오늘의 AI 툴</div>
+<!-- AI 툴 -->
+<div style="{_S}">
+  {section_header("🛠 오늘의 AI 툴", "AI Tool")}
   {tool_html}
 </div>
 
-<div class="section">
-  <div class="section-eyebrow">Calendar</div>
-  <div class="section-title">📅 이번 주 주요 일정</div>
+<!-- 주요 일정 -->
+<div style="{_S}">
+  {section_header("📅 이번 주 주요 일정", "Calendar")}
   {sched_html}
 </div>
 
-<div class="subscribe-cta">
-  <div class="subscribe-cta-title">👓 또롱이 뉴스레터 구독하기</div>
-  <div class="subscribe-cta-desc">매일 오전 7시, AI·기술·경제 핵심 뉴스를<br>깔끔하게 정리해서 보내드립니다.</div>
-  <a href="mailto:{GMAIL_ADDRESS}?subject=또롱이 뉴스레터 구독 신청&body=안녕하세요! 구독 신청합니다." class="subscribe-btn">구독 신청하기 →</a>
+<!-- Subscribe CTA -->
+<div style="padding:28px 40px;background:#1A1040;text-align:center;border-bottom:1px solid #0E0830;">
+  <div style="{_F}font-size:16px;font-weight:700;color:#F0EDE4;margin-bottom:6px;">👓 또롱이 뉴스레터 구독하기</div>
+  <div style="{_F}font-size:12.5px;color:#8A7FAA;margin-bottom:18px;line-height:1.7;font-weight:300;">매일 오전 7시, AI·기술·경제 핵심 뉴스를<br>깔끔하게 정리해서 보내드립니다.</div>
+  <a href="mailto:{GMAIL_ADDRESS}?subject=또롱이 뉴스레터 구독 신청&body=안녕하세요! 구독 신청합니다."
+     style="{_F}display:inline-block;background:#E8682A;color:#fff;font-size:13px;font-weight:700;padding:12px 32px;border-radius:6px;text-decoration:none;">구독 신청하기 →</a>
 </div>
 
-<div class="footer">
-  <p>또롱이 뉴스레터 · Powered by Claude AI<br>
-  수신 거부: <a href="mailto:{GMAIL_ADDRESS}?subject=또롱이 뉴스레터 수신 거부">여기로 메일 주세요</a></p>
+<!-- Footer -->
+<div style="background:#1A1040;padding:22px 40px;text-align:center;">
+  <p style="{_F}font-size:11px;color:#5A5078;line-height:2;">또롱이 뉴스레터 · Powered by Claude AI<br>
+  수신 거부: <a href="mailto:{GMAIL_ADDRESS}?subject=또롱이 뉴스레터 수신 거부"
+               style="color:#7B6FAA;text-decoration:none;">여기로 메일 주세요</a></p>
 </div>
 
 </div>
